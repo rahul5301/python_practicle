@@ -2,21 +2,16 @@ from django.shortcuts import render , redirect
 from django.contrib.auth.models import User
 from .models import Profile
 import random
-import http.client
 from twilio.rest import Client
 from django.conf import settings
 from django.contrib.auth import authenticate, login
 
+from .models import  *
+
 def send_otp(mobile , otp):
     print("FUNCTION CALLED")
-    # conn = http.client.HTTPSConnection("api.msg91.com")
-    # authkey = settings.AUTH_KEY 
-    # headers = { 'content-type': "application/json" }
-    # url = "http://control.msg91.com/api/sendotp.php?otp="+otp+"&message="+"Your otp is "+otp +"&mobile="+mobile+"&authkey="+authkey+"&country=91"
-    # conn.request("GET", url , headers=headers)
-    # res = conn.getresponse()aa4ccf337fdb4046883b3f8cea22ceef
     account_sid = 'AC827982c02d08b4edbee729020831fb1a'
-    auth_token = 'a7c973ea6c9d1d73ff3ee4ee19caf6df'
+    auth_token = 'aa2d34f8e134f8b621bf415328bb4320'
     body = 'Hello your otp is here'+str(otp)
  
     client = Client(account_sid, auth_token)
@@ -28,8 +23,6 @@ def send_otp(mobile , otp):
                               to =str(mobile)
                           )
     print(message.sid)
-    # data = res.read()
-    # print(data)
     return None
 def login_otp(request):
     mobile = request.session['mobile']
@@ -98,4 +91,21 @@ def otp(request):
         
     return render(request,'otp.html' , context)
 def cart(request):
-    return render(request, 'cart.html')
+    data = Book.objects.all()
+    dict_data = {"data": data,
+    "user": request.user}
+    return render(request, 'cart.html', context = dict_data)
+
+def details_product(request,pk):
+    details = Book.objects.get(id=pk)
+
+    details = {
+        "title":details.title,
+        "author": details.author,
+        "price": details.price,
+        "quantity": details.quantity,
+        "description": details.description,
+        "date_created": details.date_created,
+
+            }
+    return render(request, 'product_details.html', context = details)
